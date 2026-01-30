@@ -1,0 +1,5 @@
+RUN apt update && apt install -y openjdk-17-jdk
+WORKDIR /home/app
+COPY HelloWorld.java .
+RUN javac HelloWorld.java
+CMD["echo","Hello from version 2"]
