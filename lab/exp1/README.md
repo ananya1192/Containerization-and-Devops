@@ -15,6 +15,8 @@
    - Resource utilization
    - Performance
    - Operational characteristics
+  
+     
 ---
 
 ## Part A: Virtual Machine (Windows)
