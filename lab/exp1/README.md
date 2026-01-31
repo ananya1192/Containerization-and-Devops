@@ -11,7 +11,10 @@
 
 4. To deploy an Ubuntu-based Nginx web server in both environments.
 
-5. To compare resource utilization, performance, and operational characteristics of VMs and Containers.
+5. Compare VMs and Containers in terms of:
+   - Resource utilization
+   - Performance
+   - Operational characteristics
 ---
 
 ## Part A: Virtual Machine (Windows)
