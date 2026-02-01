@@ -13,3 +13,4 @@ This repository contains lab and theory work for Containeriazation and Devops.
 2. [Experiment 2: Docker Installation, Configuration and Running Images](./lab/exp2/)
 
 ## CLASS
+1. [Unit 1](./theory/)
