@@ -126,3 +126,45 @@ sudo docker push ananya559/java-app:1.0
 docker pull ananya559/java-app:1.0
 docker run ananya559/java-app:1.0
 ```
+
+### Docker Engine API
+
+1. Verify Docker API Socket in WSL
+- Inside WSL
+
+```bash
+ls -l /var/run/docker.sock
+```
+
+2. API Versioning
+
+```bash
+curl --unix-socket /var/run/docker.sock http://localhost/version
+```
+3. List Containers
+
+```bash
+curl --unix-socket /var/run/docker.sock \
+  http://localhost/v1.44/containers/json
+  ```
+  ![](./images/img3.png)
+
+4. Pull nginx
+```bash
+curl --unix-socket /var/run/docker.sock \
+  -X POST \
+  "http://localhost/v1.44/images/create?fromImage=nginx&tag=latest"
+  ```
+  ![](./images/img4.png)
+
+5. Start/Stop Container 
+```bash
+   curl --unix-socket /var/run/docker.sock \
+  -X POST \
+  http://localhost/v1.44/containers/mynginx/start
+```
+```bash
+  curl --unix-socket /var/run/docker.sock \
+  -X POST \
+  http://localhost/v1.44/containers/mynginx/stop
+```
