@@ -126,6 +126,7 @@ sudo docker push ananya559/java-app:1.0
 docker pull ananya559/java-app:1.0
 docker run ananya559/java-app:1.0
 ```
+---
 
 ### Docker Engine API
 
