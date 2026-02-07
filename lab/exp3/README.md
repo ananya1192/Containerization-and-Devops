@@ -1,5 +1,5 @@
 ## EXPERIMENT:3 Deploying NGINX Using Different Base Images and Comparing Image Layers
-### Part 1: Deploy NGINX Using Official Image (Recommended Approach)
+### Part 1: Deploy NGINX Using Official Image 
 Step 1: Pull the Image
 ```bash
 docker pull nginx:latest
@@ -134,3 +134,19 @@ docker run -d \
 nginx
 ```
 ![](./images/img9.png)
+
+---
+
+Task 2: Reverse Proxy (Conceptual)<br>
+
+NGINX can:
+
+- Forward traffic to backend services
+- Load balance multiple containers
+- Terminate SSL
+
+Example use cases:
+
+- Frontend for microservices
+- API gateway
+- Static file server

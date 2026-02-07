@@ -1,0 +1,9 @@
+# Python virtual environment
+venv/
+__pycache__/
+
+# Docker
+*.log
+
+# OS files
+.DS_Store
