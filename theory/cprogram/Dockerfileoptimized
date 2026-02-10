@@ -1,0 +1,10 @@
+# Stage 1: Build
+FROM ubuntu:22.04 AS builder
+RUN apt-get update && apt-get install -y gcc
+COPY hello.c .
+RUN gcc -static -o hello hello.c
+
+# Stage 2: Runtime (FROM scratch = minimal)
+FROM scratch
+COPY --from=builder /hello /hello
+CMD ["/hello"]
