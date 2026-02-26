@@ -170,4 +170,37 @@ curl --unix-socket /var/run/docker.sock \
   http://localhost/v1.44/containers/mynginx/stop
 ```
 ---
-1. 
+### Exposing Docker API
+
+1. Open Docker Daemon Configuration file
+```bash
+sudo nano /etc/docker/daemon.json
+``` 
+And add the following code :
+```bash
+{
+  "hosts": [
+    "tcp://0.0.0.0:2375",
+    "unix:///var/run/docker.sock"
+  ]
+}
+```
+2. Stop the docker daemon.
+```bash
+sudo pkill dockered
+```
+3. Start docker daemon manually.
+```bash
+sudo dockerd &sudo dockerd &
+```
+![](./images/img9.png)
+
+4. Verify Docker is listening on port 2375.
+```bash
+ss -lntp | grep 2375
+```
+5. Test docker remote API using CURL.
+```bash
+curl http://localhost:2375/containers/json
+```
+![](./images/img10.png)
