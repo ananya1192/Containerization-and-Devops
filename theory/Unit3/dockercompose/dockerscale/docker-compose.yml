@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "8080-8082:80"  # Dynamic port mapping for scaling
+    networks:
+      - app-network
+
+  worker:
+    image: alpine:latest
+    command: sh -c "while true; do echo 'Working...'; sleep 5; done"
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    networks:
+      - app-network
+
+networks:
+  app-network:
