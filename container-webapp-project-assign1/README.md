@@ -188,3 +188,24 @@ curl http://localhost:3000/users
 ```
 ![](./images/volumepersist1.png)
 ![](./images/volumepersist2.png)
+---
+---
+## Justification for Using localhost Instead of Macvlan IP
+Although the Macvlan network was successfully configured and container-to-container communication is functioning correctly, with the backend container able to access the PostgreSQL database using static IP addresses, there are certain limitations observed due to the use of WSL (Windows Subsystem for Linux).
+
+In this setup, Macvlan enables containers to behave as independent devices on the network; however, due to WSL’s virtualized networking architecture, the host system is unable to directly communicate with containers using their Macvlan-assigned IP addresses. This results in connection timeouts when attempting to access the backend service via its static IP from the host machine.
+
+Therefore, despite the correct implementation of Macvlan networking and successful inter-container communication, direct host access using Macvlan IPs is restricted in the WSL environment. To overcome this limitation for testing and demonstration purposes, port mapping and localhost access were used.
+
+1. Macvlan setup
+![](./images/just1.png)
+
+2. Container to container communication is working over macvlan
+![](./images/just2.png)
+
+3. Databse is accessible
+![](./images/just3.png)
+
+4. WSL Limitation
+![](./images/just4.png)
+Macvlan networking assigns each container a unique IP address, making them behave like separate devices on the LAN. However, due to Linux kernel restrictions, the host cannot directly communicate with these containers. To access container services from the host, port mapping (e.g., using localhost) is used instead.
