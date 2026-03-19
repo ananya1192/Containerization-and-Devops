@@ -19,3 +19,7 @@ This repository contains lab and theory work for Containeriazation and Devops.
 1. [Unit 1](./theory/Unit1/)
 2. [Unit 2](./theory/Unit2/)
 3. [Unit 3](./theory/Unit3/)
+
+## Assignments
+1. [Containerized Web Application with PostgreSQL using Docker Compose and
+Macvlan/Ipvlan](./container-webapp-project-assign1/)
