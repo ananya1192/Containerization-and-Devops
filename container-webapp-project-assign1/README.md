@@ -260,6 +260,13 @@ curl http://localhost:3000/health
 ```
 ![](./images/healthcheck.png)
 
+- Runs a temporary container to check the health of the Node backend API via the /health endpoint.
+```bash
+docker run --rm --network container-webapp-project-assign1_ipvlan_net curlimages/curl \
+  http://192.168.200.20:3000/health
+  ```
+  ![](./images/healthusingup.png)
+
 2. Insert user
 ```bash
 curl -X POST http://localhost:3000/users \
@@ -267,12 +274,27 @@ curl -X POST http://localhost:3000/users \
      -d '{"name":"Ananya"}'
 ```
 ![](./images/insertuser.png)
+- Runs a temporary container to test the Node backend API by sending a POST request.
+```bash
+docker run --rm --network container-webapp-project-assign1_ipvlan_net curlimages/curl \
+  -X POST http://192.168.200.20:3000/users \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Ananya"}'
+  ```
+  ![](./images/insertusingip.png)
 
 3. Fetch users
 ```bash
 curl http://localhost:3000/users
 ```
 ![](./images/fetchusers.png)
+
+- Runs a temporary container to fetch and display all users from the Node backend API.
+```bash
+docker run --rm --network container-webapp-project-assign1_ipvlan_net curlimages/curl \
+  -X GET http://192.168.200.20:3000/users
+  ```
+![](./images/fetchusingip.png)
 ---
 ---
 ## MACvlan vs IPvlan 
@@ -288,7 +310,7 @@ curl http://localhost:3000/users
 
 ---
 ---
-## Reason for Using localhost Instead of Macvlan IP
+## Reason for Using localhost Instead of Macvlan / IPvlan
 - In WSL2, the host runs in a virtualized network.
 - IPvlan and Macvlan give containers IPs on your physical LAN subnet, making containers behave like independent devices.
 - WSL host cannot talk to IPvlan/Macvlan IPs directly because of Linux kernel network restrictions.
