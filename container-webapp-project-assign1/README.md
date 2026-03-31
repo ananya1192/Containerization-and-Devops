@@ -1,7 +1,6 @@
-### Project Assignment 1 Containerized Web Application with PostgreSQL using Docker Compose and
-Macvlan/Ipvlan
+# Project Assignment 1 Containerized Web Application with PostgreSQL using Docker Compose and Macvlan/Ipvlan
 
-Objective
+## Objectives
 
 Design, containerize, and deploy a web application using:
 
@@ -11,9 +10,17 @@ Design, containerize, and deploy a web application using:
 - Separate Dockerfiles (Backend + Database)
 - Docker Compose for orchestration
 - Macvlan or Ipvlan networking (mandatory)
+---
+## Architecture
+![](./images/architecture.png)
+---
+
+## Project Structure
+![](./images/projstructure.png)
 
 ---
-Step 1. Initialize a node package
+
+Step 1. Initialize a node package and [package.json](./backend/package.json) will be created.
 ```bash
 npm init -y
 ```
@@ -25,13 +32,89 @@ npm i express pg
 ```
 ![](./images/img2.png)
 
-Step 3. Create [package.json](./package.json)
+Step 3. Create [server.js](./backend/src/server.js)
+```bash
+const express = require("express");
+const { Pool } = require("pg");
 
-Step 4. Create [server.js](./backend/src/server.js)
 
-Step 5. Create [Dockerfile](./backend/Dockerfile) for backend
+const app = express();
+app.use(express.json());
 
-Step 6. Create .dockerignore file and include the following :
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  user: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+  database: process.env.POSTGRES_DB,
+  port: 5432
+});
+
+async function initDB() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users(
+        id SERIAL PRIMARY KEY,
+        name TEXT
+    )
+  `);
+}
+
+initDB();
+
+app.get("/health", (req, res) => {
+  res.send("Server healthy");
+});
+
+app.post("/users", async (req, res) => {
+  const { name } = req.body;
+
+  const result = await pool.query(
+    "INSERT INTO users(name) VALUES($1) RETURNING *",
+    [name]
+  );
+
+  res.json(result.rows[0]);
+});
+
+app.get("/users", async (req, res) => {
+  const result = await pool.query("SELECT * FROM users");
+  res.json(result.rows);
+});
+
+app.listen(3000, "0.0.0.0", () => {
+  console.log("Server running on port 3000");
+});
+```
+
+Step 4. Create [Dockerfile](./backend/Dockerfile) for backend
+```bash
+# Builder Stage
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install --only=production
+
+COPY . .
+
+# Runtime Stage
+FROM node:20-alpine
+
+WORKDIR /app
+
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+COPY --from=builder /app .
+
+USER appuser
+
+EXPOSE 3000
+
+CMD ["node", "src/server.js"]
+```
+
+Step 5. Create .dockerignore file and include the following :
 ```bash
 node_modules
 npm-debug.log
@@ -39,23 +122,21 @@ Dockerfile
 .git
 .gitignore
 ```
-Step 7. Create [Dockerfile](./database/Dockerfile) for database
+Step 6. Create [Dockerfile](./database/Dockerfile) for database
 ```bash
 FROM postgres:15-alpine
 
 COPY init.sql /docker-entrypoint-initdb.d/
 ```
-Step 8. Create [init.sql](./database/init.sql)
+Step 7. Create [init.sql](./database/init.sql)
 ```bash
 CREATE TABLE IF NOT EXISTS users(
     id SERIAL PRIMARY KEY,
     name TEXT
 );
 ```
-Step 9. Create [docker-compose.yml](./docker-compose.yml)
+Step 8. Create [docker-compose.yml](./docker-compose.yml)
 ```bash
-version: "3.9"
-
 services:
 
   database:
@@ -72,13 +153,15 @@ services:
       - pgdata:/var/lib/postgresql/data
 
     networks:
-      macvlan_net:
-        ipv4_address: 192.168.50.21
+      ipvlan_net:
+        ipv4_address: 192.168.200.21
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d mydb"]
       interval: 10s
+      timeout: 5s
       retries: 5
+
 
   backend:
     build: ./backend
@@ -86,7 +169,7 @@ services:
     restart: always
 
     environment:
-      DB_HOST: 192.168.50.21
+      DB_HOST: 192.168.200.21
       POSTGRES_DB: mydb
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: ananya
@@ -96,116 +179,126 @@ services:
         condition: service_healthy
 
     networks:
-      macvlan_net:
-        ipv4_address: 192.168.50.20
-      bridge_net: {}      
+      ipvlan_net:
+        ipv4_address: 192.168.200.20
+      default:   
 
     ports:
-      - "3000:3000"   
+      - "3000:3000"
+
 
 volumes:
   pgdata:
 
-networks:
-  macvlan_net:
-    external: true
-  bridge_net:            
-    driver: bridge
-```
-Step 10. Find the network interface
-```bash
-ip a
-```
-Step 11. Create network
-```bash
-docker network create -d macvlan \
-  --subnet=192.168.50.0/24 \
-  --gateway=192.168.50.1 \
-  -o parent=eth0 \
-  macvlan_net
-```
-![](./images/createnetwork.png)
 
-Step 12. Build from compose
+networks:
+  ipvlan_net:
+    driver: ipvlan
+    driver_opts:
+      parent: eth0
+    ipam:
+      config:
+        - subnet: 192.168.200.0/24
+          gateway: 192.168.200.1
+```
+
+Step 9. Build from compose
 ```bash
 docker-compose build --no-cache
 ```
 ![](./images/buildcompose.png)
 
-Step 13. Start services
+Step 10. Start services
 ```bash
 docker-compose up -d
 ```
-![](./images/dockercomposeup.png)
+![](./images/composeup.png)
 
-Step 13. Insert a user in database
-```bash
- curl -X POST http://192.168.50.20:3000/users \
--H "Content-Type: application/json" \
--d '{"name":"Ananya Tiwari"}'
- ```
- Step 14. GET user API
- ```bash
-  curl http://192.168.50.20:3000/users
-  ```
- ![](./images/post.png)
-
-Step 15. List running containers
+Step 11. List running containers
 ```bash
 docker ps
 ```
 ![](./images/dockerps.png)
 
-Step 16. List Volumes
+Step 12. List Volumes
 ```bash
 docker volume ls
 ```
 ![](./images/volumels.png)
 
-Step 17. Inspect network
+Step 13. Inspect network
 ```bash
-docker network inspect macvlan_net
+ docker network inspect container-webapp-project-assign1_ipvlan_net
 ```
-![](./images/inspectmacvlan.png)
+![](./images/inspectipvlan.png)
 
-Step 18. Inspect backend container
+Step 14. Inspect backend container
 ```bash
 docker inspect node_backend
 ```
 ![](./images/inspectbackend.png)
 
-Step 19. Inspect database
+Step 15. Inspect database
 ```bash
 docker inspect postgres_db
 ```
 ![](./images/inspectdb.png)
 
-Step 20. Verify data persistance
+Step 16. Verify data persistance
 ```bash
 docker-compose down
 docker-compose up -d
 curl http://localhost:3000/users
 ```
-![](./images/volumepersist1.png)
-![](./images/volumepersist2.png)
+![](./images/volpersistace.png)
+---
+
+### API CHECKPOINTS
+1. Health check
+```bash
+curl http://localhost:3000/health
+```
+![](./images/healthcheck.png)
+
+2. Insert user
+```bash
+curl -X POST http://localhost:3000/users \
+     -H "Content-Type: application/json" \
+     -d '{"name":"Ananya"}'
+```
+![](./images/insertuser.png)
+
+3. Fetch users
+```bash
+curl http://localhost:3000/users
+```
+![](./images/fetchusers.png)
 ---
 ---
-## Justification for Using localhost Instead of Macvlan IP
-Although the Macvlan network was successfully configured and container-to-container communication is functioning correctly, with the backend container able to access the PostgreSQL database using static IP addresses, there are certain limitations observed due to the use of WSL (Windows Subsystem for Linux).
+## MACvlan vs IPvlan 
+### Macvlan vs Ipvlan Comparison
 
-In this setup, Macvlan enables containers to behave as independent devices on the network; however, due to WSL’s virtualized networking architecture, the host system is unable to directly communicate with containers using their Macvlan-assigned IP addresses. This results in connection timeouts when attempting to access the backend service via its static IP from the host machine.
+| Feature       | Macvlan                             | Ipvlan                             |
+|---------------|------------------------------------|-----------------------------------|
+| Isolation     | High, unique MAC per container     | Shares MAC with parent network    |
+| IP Assignment | One IP per container               | Multiple IPs can share a MAC      |
+| Use Case      | Host communication, static IP      | Host communication, static IP     |
+| Complexity    | Higher; must plan subnet carefully | Lower; simpler setup              |
+| Performance   | Near-native                        | Near-native, slightly simpler     |
 
-Therefore, despite the correct implementation of Macvlan networking and successful inter-container communication, direct host access using Macvlan IPs is restricted in the WSL environment. To overcome this limitation for testing and demonstration purposes, port mapping and localhost access were used.
+---
+---
+## Reason for Using localhost Instead of Macvlan IP
+- In WSL2, the host runs in a virtualized network.
+- IPvlan and Macvlan give containers IPs on your physical LAN subnet, making containers behave like independent devices.
+- WSL host cannot talk to IPvlan/Macvlan IPs directly because of Linux kernel network restrictions.
+- So, direct host to container via IPvlan/Macvlan fails.
 
-1. Macvlan setup
-![](./images/just1.png)
+1. IPvlan setup
+![](./images/ipvlansetup.png)
 
-2. Container to container communication is working over macvlan
-![](./images/just2.png)
+2. Container to container communication is working over ipvlan
+![](./images/conttocontipvlan.png)
 
-3. Databse is accessible
-![](./images/just3.png)
-
-4. WSL Limitation
-![](./images/just4.png)
-Macvlan networking assigns each container a unique IP address, making them behave like separate devices on the LAN. However, due to Linux kernel restrictions, the host cannot directly communicate with these containers. To access container services from the host, port mapping (e.g., using localhost) is used instead.
+3. WSL Limitation
+![](./images/wsllimit.png)
