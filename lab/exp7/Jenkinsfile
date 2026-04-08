@@ -7,16 +7,10 @@ pipeline {
 
     stages {
 
-        stage('Clone Source') {
-            steps {
-                git branch: 'main', url: 'https://github.com/ananya1192/Containerization-and-Devops.git'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 dir('lab/exp7/my-app') {
-                    sh 'docker build -t $IMAGE_NAME:latest .'
+                    bat 'docker build -t %IMAGE_NAME%:latest .'
                 }
             }
         }
@@ -24,14 +18,14 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKER_TOKEN')]) {
-                    sh 'echo $DOCKER_TOKEN | docker login -u ananya559 --password-stdin'
+                    bat 'echo %DOCKER_TOKEN% | docker login -u ananya559 --password-stdin'
                 }
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
-                sh 'docker push $IMAGE_NAME:latest'
+                bat 'docker push %IMAGE_NAME%:latest'
             }
         }
     }
