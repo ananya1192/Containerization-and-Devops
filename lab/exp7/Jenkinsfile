@@ -9,13 +9,13 @@ pipeline {
 
         stage('Clone Source') {
             steps {
-                git 'https://github.com/ananya1192/Containerization-and-Devops.git'
+                git branch: 'main', url: 'https://github.com/ananya1192/Containerization-and-Devops.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                dir('lab/exp7') {
+                dir('lab/exp7/my-app') {
                     sh 'docker build -t $IMAGE_NAME:latest .'
                 }
             }
