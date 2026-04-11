@@ -7,6 +7,19 @@ pipeline {
 
     stages {
 
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKER_TOKEN')]) {
+                    bat '''
+                    echo Logging into Docker...
+                    echo %DOCKER_TOKEN%>token.txt
+                    docker login -u ananya559 --password-stdin < token.txt
+                    del token.txt
+                    '''
+                }
+            }
+        }
+        
         stage('Build Docker Image') {
             steps {
                 dir('lab/exp7') {
@@ -15,13 +28,6 @@ pipeline {
             }
         }
 
-        stage('Login to Docker Hub') {
-            steps {
-                withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKER_TOKEN')]) {
-                    bat 'echo %DOCKER_TOKEN% | docker login -u ananya559 --password-stdin'
-                }
-            }
-        }
 
         stage('Push to Docker Hub') {
             steps {
