@@ -248,3 +248,69 @@ http://<your-server-ip>:8080/github-webhook/
 ```
 Events:
 Push events
+
+![](./images/webhook1.png)
+
+---
+
+### Part E: Execution Flow (Stage-wise Explanation)
+
+***Stage 1: Code Push***
+
+- Developer updates code in GitHub
+
+***Stage 2: Webhook Trigger***
+
+- GitHub sends event to Jenkins
+
+***Stage 3: Jenkins Pipeline Execution***
+
+***Stage: Clone***
+
+- Pulls latest code from GitHub
+. Pulls latest code from GitHub
+
+***Stage : Build***
+
+- Docker builds image using Dockerfile
+
+***Stage: Auth***
+
+- Jenkins logs into Docker Hub using stored token
+
+***Stage: Push***
+
+- Image pushed to Docker Hub
+
+Stage 4: Artifact Ready
+
+· Docker image available globally
+
+### Role of Same Host Agent
+
+- Jenkins runs inside Docker
+- Docker socket mounted:
+```bash
+/var/run/docker. sock
+```
+Effect :
+- Jenkins directly controls host Docker
+- Builds and pushes images without separate agent
+
+---
+### Observations
+
+- Jenkins GUI simplifies CI/CD management
+- GitHub acts as source + pipeline definition
+- Docker ensures consistent builds
+- Webhook enables automation
+
+---
+
+### Result
+
+- Successfully implemented a complete CI/CD pipeline where:
+- Source code and pipeline are maintained in GitHub
+- Jenkins automatically detects changes
+- Docker image is built on host agent
+- Image is securely pushed to Docker Hub
