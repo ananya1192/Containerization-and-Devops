@@ -16,7 +16,7 @@ pushing Docker images to Docker Hub.
 
 ## Theory
 
-1. What is Jenkins?
+**1. What is Jenkins?**
 
 Jenkins is a web-based GUI automation server used to:
 
@@ -30,32 +30,34 @@ It provides:
 - Plugin ecosystem (GitHub, Docker, etc.)
 - Pipeline as Code using Jenkinsfile
 
-2. What is CI/CD?
+**2. What is CI/CD?**
 
 - Continuous Integration (CI) : Code is automatically built and tested after each commit
 
 - Continuous Deployment (CD) : Built artifacts (Docker images) are automatically delivered/deployed
 
-3. Workflow Overview
+**3. Workflow Overview**
 ```bash
 Developer > GitHub > Webhook > Jenkins > Build > Docker Hub
 ```
-4. Prerequisites :
+**4. Prerequisites :**
 - Docker & Docker Compose installed
 - GitHub account
 - Docker Hub account
 - Basic Linux command knowledge
 
+--- 
+
 ### Part A: GitHub Repository Setup (Source Code + Build Definition)
 
-1. Create Repository
+**1. Create Repository**
 
    Create a repository on GitHub:
 ```bash
 my-app
 ```
 
-2. Project Structure
+**2. Project Structure**
 ```bash
 my- app/
 app . py
@@ -63,7 +65,7 @@ requirements.txt
 Dockerfile
 Jenkinsfile
 ```
-3. Application Code
+**3. Application Code**
 
 - Create[app.py](./my-app/app.py)
 ```bash
@@ -81,7 +83,7 @@ app.run(host="0.0.0.0", port=80)
 ```bash
 flask
 ```
-4. Create [Dockerfile](./my-app/Dockerfile) (Build Process)
+**4. Create [Dockerfile](./my-app/Dockerfile) (Build Process)**
 ```bash
 FROM python:3.10-slim
 
@@ -105,7 +107,7 @@ Build Process Explanation :
 
 4. Output -> Docker Image
 
-5. Create [Jenkinsfile](./my-app/Jenkinsfile) (Pipeline Definition in GitHub)
+**5. Create [Jenkinsfile](./my-app/Jenkinsfile) (Pipeline Definition in GitHub)**
 ```bash
 pipeline {
     agent any
@@ -144,9 +146,12 @@ pipeline {
     }
 }
 ```
+---
+
 ### Part B: Jenkins Setup using Docker (Persistent Configuration)
 
-1. Create [Docker Compose](./my-app/docker-compose.yml) File
+**1. Create [Docker Compose](./my-app/docker-compose.yml) File**
+
 ```bash
 version: '3.8'
 
@@ -166,7 +171,8 @@ user: rootdocker-compose up -d
 volumes:
 jenkins_home:
 ```
-2. Start Jenkins
+**2. Start Jenkins**
+
 ```bash
 docker-compose up -d
 ```
@@ -177,18 +183,22 @@ docker-compose up -d
 http://localhost:8081/
 ```
 ![](./images/img2.png)
-3. Unlock Jenkins
+**3. Unlock Jenkins**
+
 ```bash
 docker exec -it jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 ```
-4. Initial Setup
+**4. Initial Setup**
+
 - Install suggested plugins
 - Create admin user
 ![](./images/img3.png)
 
+---
+
 ### Part C: Jenkins Configuration
 
-1. Add Docker Hub Credentials
+**1. Add Docker Hub Credentials**
 
 Path:
 
@@ -199,7 +209,7 @@ Manage Jenkins > Credentials > Add Credentials
 - Value: Docker Hub Access Token
 ![](./images/img4.png)
 
-2. Create Pipeline Job
+**2. Create Pipeline Job**
 
 -  New Item -> Pipeline
 - Name : ci-cd-pipeline
@@ -211,3 +221,30 @@ Pipeline script from SCM
 - SCM: Git
 - Repo URL: your GitHub repo
 - Script Path : Jenkinsfile
+![](./images/buildpipeline1.png)
+
+**3. Run pipeline**
+
+![](./images/buildpipeline2.png)
+![](./images/buildpipeline4.png)
+
+**4. Verify in docker hub**
+
+![](./images/verifyapp.png)
+
+---
+
+### Part D: GitHub Webhook Integration
+
+***1 Configure Webhook***
+
+In GitHub:
+```bash
+Settings > Webhooks > Add Webhook
+```
+Payload URL:
+```bash
+http://<your-server-ip>:8080/github-webhook/
+```
+Events:
+Push events
