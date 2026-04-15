@@ -14,6 +14,7 @@ This repository contains lab and theory work for Containeriazation and Devops.
 3. [Experiment 3: Deploying Web Applications with Docker](./lab/exp3/)
 4. [Experiment 4: Docker Essentials](./lab/exp4/)
 5. [Experiment 5: Docker - Volumes, Environment Variables, Monitoring & Networks](./lab/exp5/)
+6. [Experiment 7: CI/CD using Jenkins, GitHub and Docker Hub](./lab/exp7/)
 
 ## CLASS
 1. [Unit 1](./theory/Unit1/)
