@@ -14,8 +14,10 @@ This repository contains lab and theory work for Containeriazation and Devops.
 3. [Experiment 3: Deploying Web Applications with Docker](./lab/exp3/)
 4. [Experiment 4: Docker Essentials](./lab/exp4/)
 5. [Experiment 5: Docker - Volumes, Environment Variables, Monitoring & Networks](./lab/exp5/)
-6. [Experiment 7: CI/CD using Jenkins, GitHub and Docker Hub](./lab/exp7/)
-7. [Experiment 9 : Ansible](./lab/exp9/)
+6. [Experiment 6 : Comparison of Docker Run and Docker Compose](./lab/exp6/)
+7. [Experiment 7: CI/CD using Jenkins, GitHub and Docker Hub](./lab/exp7/)
+8. [Experiment 9 : Ansible](./lab/exp9/)
+9. [Experiment 10: SonarQube - Static Code Analysis](./lab/exp10/)
 
 ## CLASS
 1. [Unit 1](./theory/Unit1/)
