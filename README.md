@@ -18,6 +18,8 @@ This repository contains lab and theory work for Containeriazation and Devops.
 7. [Experiment 7: CI/CD using Jenkins, GitHub and Docker Hub](./lab/exp7/)
 8. [Experiment 9 : Ansible](./lab/exp9/)
 9. [Experiment 10: SonarQube - Static Code Analysis](./lab/exp10/)
+10. [Experiment 11: Orchestration using Docker Compose & Docker Swarm](./lab/exp11/)
+11. [Experiment 12: Study and Analyse Container Orchestration using Kubernetes](./lab/exp12/)
 
 ## CLASS
 1. [Unit 1](./theory/Unit1/)
