@@ -379,3 +379,79 @@ docker compose up --build -d
 http://localhost:3000
 ```
 ![](./images/img17.png)
+
+**Advanced Build Challenge**
+
+### Task 6: Multi-Stage Dockerfile with Compose
+
+**Requirement:**
+
+Create a simple Python FastAPI or Node production-ready app using:
+
+- Multi-stage Dockerfile
+- Smaller final image
+- Use Compose to build it
+
+**Step 1.** Create [FastAPI app file](./app/main.py)
+```bash
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello from FastAPI "}
+```
+
+**Step 2.** Create [requirements.txt](./requirements.txt)
+```bash
+fastapi
+uvicorn
+```
+**Step 3.** Create [Multi-Stage Dockerfile](./Dockerfile)
+```bash
+# Stage 1: Builder
+FROM python:3.11-slim AS builder
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+# Stage 2: Final (smaller image)
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copy only installed dependencies from builder
+COPY --from=builder /root/.local /root/.local
+
+# Add app code
+COPY app ./app
+
+# Add path for installed packages
+ENV PATH=/root/.local/bin:$PATH
+
+EXPOSE 8000
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+**Step 4.** Create [docker-compose.yml](./docker-compose5.yml)
+```bash
+version: '3.8'
+
+services:
+  fastapi-app:
+    build: .
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
+    restart: always
+```
+
+**Step 5.** Run the app
+```bash
+docker-compose up -d
+```
+![](./images/img18.png)
